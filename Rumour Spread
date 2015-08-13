@@ -1,0 +1,121 @@
+/**
+=============================================================================================================
+Question 1: Your are given a list of influences in a society. We would like to propagate a rumour in this society by targeting the most influential people in the society. When we influence a person by convincing him that a rumour is true, he/she will continue to try to influence all the people who are influenced by him/her by dividing the effort equally.
+E.g. : Let us influence user “A”. Let she have influence over “B, C and D”, each having threshold of 30. If A's effort is 60, A will invest a effort of 20 on B, C and D each. But this will result in no one getting influenced.
+If the threshold of B's influence was 15, B would be influenced and then it will go on to try influencing others.
+NOTE: A node is influenced by cumulative influence, i.e. if C receives influence 20 from A and 10 from D, C will get influenced.
+Input :
+jithin 30 100 (username, the threshold beyond which he/she is influenced, the amount of effort he/she puts in, both will be integers)
+shiladitya 60 20
+user1 40 200
+.
+.
+zzz (means end of input of thresholds)
+jithin shiladitya (jithin is influenced by shiladitya NOTE this is not a symmetric relation)
+User1 user2
+user2 user3.
+.
+.
+zzz zzz (this means end of input)
+(if you get any user for whom the influence threshold is not specified, assume both the values to be 100)
+“Wait for user input of user names ”
+Input: user1
+output: n (number of new users influenced in the society after user1 was influenced)
+.
+.
+input: zzz (exit)
+NOTE:
+if the user is missing from the list of user do nothing and wait for next input
+Multiple activation of a user should not result in any thing.
+===========================================================================================================
+*/
+
+import java.io.*;
+import java.util.*;
+public class Solution {
+
+    public static void main(String[] args) {
+        /* Enter your code here. Read input from STDIN. Print output to STDOUT. Your class should be named Solution. */
+
+
+    	Map<String, Node> userMap = new HashMap<String, Node>();
+    	Map<String,	ArrayList<String>> neighboursMap = new HashMap<String, ArrayList<String>>();
+    	BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+    	String string;
+    	try {
+			while(!(string = in.readLine()).equals("zzz"))
+			{
+				String[] str = string.split(" ");
+				Node node = new Node(str[0], Integer.parseInt(str[1]), Integer.parseInt(str[2]));
+				userMap.put(str[0], node);
+			}
+			ArrayList<String> arrayList = new ArrayList<String>();
+			while(!(string = in.readLine()).equals("zzz zzz"))
+			{
+				String[] str = string.split(" ");
+				arrayList = neighboursMap.get(str[1]);
+				if(arrayList == null)
+					arrayList = new ArrayList<String>();
+				arrayList.add(str[0]);
+				neighboursMap.put(str[1], arrayList);
+			}
+			while(!(string = in.readLine()).equals("zzz"))
+			{
+				Queue<Node> queue = new LinkedList<Node>();
+				int count = 0;
+				Node node = userMap.get(string);
+				if(node == null )
+					continue;
+				if(node.bool)
+				{
+					System.out.println(0);
+					continue;
+				}
+				queue.add(node);
+				while(!queue.isEmpty())
+				{
+					node = queue.remove();
+					node.bool = true;
+					arrayList = neighboursMap.get(node.user);
+					if(arrayList==null)
+						continue;
+					for(String user : arrayList)
+					{
+						Node temp = userMap.get(user);
+						if(temp.bool)
+							continue;
+						temp.influence += (node.effort/arrayList.size());
+						if(temp.influence >= temp.threshold)
+						{
+							temp.bool = true;
+							count++;
+							queue.add(temp);
+						}
+					}
+				}
+				System.out.println(count);
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
+ 
+    public static class Node
+    {
+    	String user;
+    	int threshold;
+    	int effort;
+    	boolean bool;
+    	int influence;
+    	public Node(String user, int threshold, int effort) 
+    	{
+			// TODO Auto-generated constructor stub
+    		this.user = user;
+    		this.threshold = threshold;
+    		this.effort = effort;
+    		influence = 0;
+	  	}
+    }
+    
+}
